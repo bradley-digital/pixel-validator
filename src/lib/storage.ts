@@ -18,30 +18,49 @@ export async function clearLocal() {
   return chrome.storage.local.clear();
 }
 
-/*
- * Creates a store that uses this structure
- * {
- *   [key]: ids[],
- *   [`${key}-${id}`]: value,
- * }
- *
- * TODO: abstract Ids as createIdStore
- */
-export function createStore(key: string) {
-
-  function k(id: string) {
-    if (id.startsWith(`${key}-`)) return id;
-    return `${key}-${id}`;
-  }
-
+export function createIdStore(key: string) {
   async function getIds() {
     let ids = await getLocal(key);
     if (!Array.isArray(ids)) ids = [];
     return ids;
   }
 
+  async function removeId(id: string) {
+    const ids = await getIds();
+    const newIds = ids.filter((i: string) => i !== id);
+    return setLocal(key, ids);
+  }
+
+  async function setId(id: string) {
+    const ids = await getIds();
+    ids.push(id);
+    return setLocal(key, ids);
+  }
+
+  return {
+    getIds,
+    setId,
+    removeId,
+  };
+}
+
+/*
+ * createStore uses this structure
+ * {
+ *   [key]: ids[],
+ *   [id]: value,
+ * }
+ */
+
+export function createStore(key: string) {
+  const {
+    getIds,
+    removeId,
+    setId,
+  } = createIdStore(key);
+
   async function getItem(id: string) {
-    return getLocal(k(id));
+    return getLocal(id);
   }
 
   async function getItems() {
@@ -59,15 +78,9 @@ export function createStore(key: string) {
     return queryObjects(items, query);
   }
 
-  async function removeId(id: string) {
-    const ids = await getIds();
-    const newIds = ids.filter((i: string) => i !== id);
-    return setLocal(key, ids);
-  }
-
   async function removeItem(id: string) {
     await removeId(id);
-    return removeLocal(k(id));
+    return removeLocal(id);
   }
 
   async function removeItems() {
@@ -78,23 +91,17 @@ export function createStore(key: string) {
     return removeLocal(key);
   }
 
-  async function setId(id: string) {
-    const ids = await getIds();
-    ids.push(k(id));
-    return setLocal(key, ids);
-  }
-
   async function setItem(item: any) {
     const id = uuid();
     await setId(id);
-    await setLocal(k(id), item);
-    return k(id);
+    await setLocal(id, item);
+    return id;
   }
 
   async function updateItem(id: string, input: any) {
     const item = await getItem(id);
     const newItem = { ...item, ...input };
-    return setLocal(k(id), newItem);
+    return setLocal(id, newItem);
   }
 
   return {

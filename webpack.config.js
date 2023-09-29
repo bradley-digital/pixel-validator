@@ -6,7 +6,7 @@ module.exports = {
   context: path.join(__dirname, "src"),
   entry: {
     index: "./index.tsx",
-    "service-worker": "./service-worker.ts",
+    background: "./background.ts",
     content: "./content.ts",
   },
   mode: "production",

@@ -3,6 +3,15 @@ import {
   sendMessageToTab,
 } from "./tabs";
 
+export async function sendMessageToBackground(message: any) {
+  try {
+    const response = chrome.runtime.sendMessage(message);
+    return response;
+  } catch {
+    return { status: "err" };
+  }
+}
+
 export async function sendMessageToContent(message: any) {
   const tab = await getActiveTab();
   try {

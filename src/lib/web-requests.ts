@@ -1,37 +1,50 @@
 import chrome from "webextension-polyfill";
-import {
-  getLocal,
-  setLocal,
-  removeLocal,
-} from "./storage";
+import { createStore } from "./storage";
 
-const k = "webRequests";
+const {
+  getItems,
+  queryItems,
+  removeItem,
+  removeItems,
+  setItem,
+  updateItem,
+} = createStore("webRequests");
 
 export async function getWebRequests() {
-  return getLocal(k);
+  return getItems();
 }
 
-export async function setWebRequest(value: any) {
-  let data: any = [];
-  const existing = await getWebRequests();
-  if (Array.isArray(existing)) {
-    data = existing;
-  }
-  data.push(value);
-  return setLocal(k, data);
+export async function queryWebRequests(query: any) {
+  return queryItems(query);
+}
+
+export async function removeWebRequest(id: string) {
+  return removeItem(id);
 }
 
 export async function removeWebRequests() {
-  return removeLocal(k);
+  return removeItems();
 }
 
-export function registerListener(listener: (details: any) => void) {
+export async function setWebRequest(value: any) {
+  return setItem(value);
+}
+
+export async function updateWebRequest(id: string, value: any) {
+  return updateItem(id, value);
+}
+
+async function defaultListener(details: any) {
+  await setWebRequest(details);
+}
+
+export function registerListener(listener: (details: any) => void = defaultListener) {
   chrome.webRequest.onCompleted.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onBeforeRedirect.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onErrorOccurred.addListener(listener, { urls: ["<all_urls>"] });
 }
 
-export function removeListener(listener: (details: any) => void) {
+export function removeListener(listener: (details: any) => void = defaultListener) {
   chrome.webRequest.onCompleted.removeListener(listener);
   chrome.webRequest.onBeforeRedirect.removeListener(listener);
   chrome.webRequest.onErrorOccurred.removeListener(listener);

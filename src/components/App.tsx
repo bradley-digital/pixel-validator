@@ -2,13 +2,6 @@ import { useEffect, useState } from "react";
 import chrome from "webextension-polyfill";
 import "./App.scss";
 
-type WebRequestChanges = {
-  webRequest: {
-    newValue: object;
-    oldValue: object;
-  };
-};
-
 export default function App() {
   const [requests, setRequests] = useState<any[]>([]);
 

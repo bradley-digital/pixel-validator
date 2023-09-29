@@ -26,7 +26,6 @@ export async function removeWebRequests() {
 }
 
 export function registerListener(listener: (details: any) => void) {
-  console.log(listener);
   chrome.webRequest.onCompleted.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onBeforeRedirect.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onErrorOccurred.addListener(listener, { urls: ["<all_urls>"] });

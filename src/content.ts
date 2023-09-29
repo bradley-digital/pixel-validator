@@ -5,10 +5,10 @@ function log(data: any) {
   console.log(JSON.stringify(data));
 }
 
-async function handleMessage(message: any, sender: Runtime.MessageSender) {
-  log({ message, sender });
-}
-chrome.runtime.onMessage.addListener(handleMessage);
+//async function handleMessage(message: any, sender: Runtime.MessageSender) {
+//  log({ message, sender });
+//}
+//chrome.runtime.onMessage.addListener(handleMessage);
 
 //async function handleStorageChange(changes: object, areaName: string) {
 //  log({ changes, areaName });

@@ -1,16 +1,27 @@
 import {
-  getActiveTabs,
+  getActiveTab,
   sendMessageToTab,
 } from "./tabs";
 
-export async function sendMessage(message: any) {
-  const responses: any[] = [];
-  const tabs = await getActiveTabs();
-  for await (const tab of tabs) {
-    const id = tab?.id || 0;
-    const response = await sendMessageToTab(id, message);
-    responses.push({ id, response });
+export async function sendMessageToContent(message: any) {
+  const tab = await getActiveTab();
+  try {
+    if (tab?.id) {
+      const response = await sendMessageToTab(tab.id, message);
+      return response;
+    } else {
+      return { status: "fail" };
+    }
+  } catch {
+    return { status: "err" };
   }
-  return responses;
 }
 
+export async function sendMessageToPopup(message: any) {
+  try {
+    const response = chrome.runtime.sendMessage(message);
+    return response;
+  } catch {
+    return { status: "err" };
+  }
+}

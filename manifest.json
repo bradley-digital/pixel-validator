@@ -4,8 +4,8 @@
     "name": "Pixel Validator",
     "description": "Validate tracking pixels from any platform.",
     "action": {
-        "default_title": "Pixel Validator",
-        "default_popup": "app/index.html"
+      "default_title": "Pixel Validator",
+      "default_popup": "app/index.html"
     },
     "background": {
       "service_worker": "app/service-worker.js",
@@ -21,12 +21,6 @@
         "run_at": "document_start",
         "world": "ISOLATED"
       }
-    ],
-    "externally_connectable": {
-      "matches": ["<all_urls>"]
-    },
-    "host_permissions": [
-      "<all_urls>"
     ],
     "permissions": [
       "storage",

@@ -1,23 +1,32 @@
 import { useEffect, useState } from "react";
-import chrome from "webextension-polyfill";
+import { registerListener, removeListener } from "../lib/web-requests";
 import "./App.scss";
 
 export default function App() {
   const [requests, setRequests] = useState<any[]>([]);
 
   useEffect(() => {
-    chrome.storage.onChanged.addListener(handleStorageChange);
+    function register() {
+      registerListener(handleChange);
+    }
+    function remove() {
+      removeListener(handleChange);
+    }
+    window.addEventListener("onload", register);
+    window.addEventListener("unload", remove);
 
     return () => {
-      chrome.storage.onChanged.removeListener(handleStorageChange);
+      window.removeEventListener("onload", register);
+      window.removeEventListener("unload", remove);
     };
   }, []);
 
-  async function handleStorageChange(changes: any, areaName: string) {
-    const newRequests = changes?.webRequests?.newValue; 
-    if (Array.isArray(newRequests)) {
-      setRequests(newRequests);
-    }
+  function handleChange(details: any) {
+    console.log(details);
+    if (!details) return;
+    const newRequests = [...requests]; 
+    newRequests.push(details);
+    setRequests(newRequests);
   }
 
   return (
@@ -27,6 +36,5 @@ export default function App() {
         <p>{request?.method} {request?.url}</p>
       ))}
     </div>
-  )
-  ;
+  );
 }

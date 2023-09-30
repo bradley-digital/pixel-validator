@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Messages from "../global";
-import { clearLocal } from "../services/storage";
-import { getTabsWebRequests } from "../services/web-requests";
+import { getTabsWebRequests, removeWebRequests } from "../services/web-requests";
 import { sendMessageToBackground } from "../services/message";
 import Config from "./Config";
 import "./App.scss";
@@ -27,7 +26,12 @@ type Request = {
 export default function App() {
   const [requests, setRequests] = useState<any[]>([]);
 
-  async function handleRefresh() {
+  async function handleClear() {
+    setRequests([]);
+    await removeWebRequests();
+  }
+
+  async function handleShow() {
     const newRequests = await getTabsWebRequests();
     setRequests(newRequests);
   }
@@ -46,8 +50,8 @@ export default function App() {
       <Config />
       <button onClick={handleStart}>Start</button>
       <button onClick={handleStop}>Stop</button>
-      <button onClick={handleRefresh}>Refresh</button>
-      <button onClick={clearLocal}>Clear</button>
+      <button onClick={handleShow}>Show</button>
+      <button onClick={handleClear}>Clear</button>
       <p>Found: {requests.length} requests</p>
       {requests?.map((request: any) => (
         <p>{request?.method} {request?.url}</p>

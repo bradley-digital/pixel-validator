@@ -8,7 +8,6 @@ import { setWebRequest, startWebRequest, stopWebRequest } from "./services/web-r
 async function listener(details: any) {
   const query = await getConfigsAsQuery();
   const result = queryObjects([details], query);
-  console.log(result);
   if (result[0]) await setWebRequest(details);
 }
 

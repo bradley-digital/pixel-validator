@@ -1,5 +1,7 @@
 import chrome from "webextension-polyfill";
 import { createStore } from "./storage";
+import { getActiveTab } from "./tabs";
+import { queryObjects } from "../lib/query";
 
 const {
   getItems,
@@ -12,6 +14,13 @@ const {
 
 export async function getWebRequests() {
   return getItems();
+}
+
+export async function getTabsWebRequests() {
+  const activeTab = await getActiveTab();
+  return queryWebRequests({
+    tabId: activeTab?.id,
+  });
 }
 
 export async function queryWebRequests(query: any) {
@@ -38,13 +47,13 @@ async function defaultListener(details: any) {
   await setWebRequest(details);
 }
 
-export function registerListener(listener: (details: any) => void = defaultListener) {
+export function startWebRequest(listener: (details: any) => void = defaultListener) {
   chrome.webRequest.onCompleted.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onBeforeRedirect.addListener(listener, { urls: ["<all_urls>"] });
   chrome.webRequest.onErrorOccurred.addListener(listener, { urls: ["<all_urls>"] });
 }
 
-export function removeListener(listener: (details: any) => void = defaultListener) {
+export function stopWebRequest(listener: (details: any) => void = defaultListener) {
   chrome.webRequest.onCompleted.removeListener(listener);
   chrome.webRequest.onBeforeRedirect.removeListener(listener);
   chrome.webRequest.onErrorOccurred.removeListener(listener);

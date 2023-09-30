@@ -1,9 +1,9 @@
 import { useState } from "react";
-import Messages from "../messages";
-import { getDomain } from "../lib/url";
-import { getActiveTab } from "../lib/tabs";
-import { getWebRequests, removeWebRequests } from "../lib/web-requests";
-import { sendMessageToBackground } from "../lib/message";
+import Messages from "../global";
+import { clearLocal } from "../services/storage";
+import { getTabsWebRequests } from "../services/web-requests";
+import { sendMessageToBackground } from "../services/message";
+import Config from "./Config";
 import "./App.scss";
 
 type Request = {
@@ -28,36 +28,26 @@ export default function App() {
   const [requests, setRequests] = useState<any[]>([]);
 
   async function handleRefresh() {
-    const reqs = await getWebRequests();
-    const activeTab = await getActiveTab();
-    const tabDomain = getDomain(activeTab?.url);
-
-    const newRequests = reqs.filter((req: any) => {
-      const reqDomain = getDomain(req?.url);
-      const isSameTab = activeTab?.id === req?.tabId;
-      const isSameDomain = tabDomain === reqDomain;
-      if (isSameTab && !isSameDomain) {
-        return true;
-      }
-    });
+    const newRequests = await getTabsWebRequests();
     setRequests(newRequests);
   }
 
   async function handleStart() {
-    await sendMessageToBackground(Messages.RegisterWebRequests);
+    await sendMessageToBackground(Messages.StartWebRequests);
   }
 
   async function handleStop() {
-    await sendMessageToBackground(Messages.RemoveWebRequests);
+    await sendMessageToBackground(Messages.StopWebRequests);
   }
 
   return (
     <div>
-      <h1>External Requests</h1>
+      <h1>Pixel Validator</h1>
+      <Config />
       <button onClick={handleStart}>Start</button>
       <button onClick={handleStop}>Stop</button>
       <button onClick={handleRefresh}>Refresh</button>
-      <button onClick={removeWebRequests}>Clear</button>
+      <button onClick={clearLocal}>Clear</button>
       <p>Found: {requests.length} requests</p>
       {requests?.map((request: any) => (
         <p>{request?.method} {request?.url}</p>

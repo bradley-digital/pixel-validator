@@ -12,4 +12,3 @@ export async function getActiveTabs() {
 export async function sendMessageToTab(id: number, message: any) {
   return chrome.tabs.sendMessage(id, message);
 }
-

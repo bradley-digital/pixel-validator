@@ -1,5 +1,6 @@
 import chrome from "webextension-polyfill";
 import { v4 as uuid } from "uuid";
+import { Query, queryObjects } from "../lib/query";
 
 export async function getLocal(key: string) {
   const data = await chrome.storage.local.get(key);
@@ -50,6 +51,8 @@ export function createIdStore(key: string) {
  *   [key]: ids[],
  *   [id]: value,
  * }
+ *
+ * TODO: Add ability to generate indexes
  */
 
 export function createStore(key: string) {
@@ -68,12 +71,13 @@ export function createStore(key: string) {
     const ids = await getIds();
     for await (const id of ids) {
       const item = await getItem(id);
+      item.id = id;
       items.push(item);
     }
     return items;
   }
 
-  async function queryItems(query: { [key: string]: string }) {
+  async function queryItems(query: Query) {
     const items = await getItems();
     return queryObjects(items, query);
   }
@@ -115,14 +119,10 @@ export function createStore(key: string) {
   };
 }
 
-function queryObjects(obj: any[], query: { [key: string]: string }) {
-  return obj.filter((item: any) => {
-    if (item && typeof item === "object") {
-      return Object.keys(query).some((key) => (
-        typeof item === "object"
-        && typeof item[key] !== "undefined"
-        && item[key] === query[key]
-      ));
-    }
-  }); 
+export function startStorage(listener: (change: any) => void) {
+  chrome.storage.local.onChanged.addListener(listener);
+}
+
+export function stopStorage(listener: (change: any) => void) {
+  chrome.storage.local.onChanged.removeListener(listener);
 }

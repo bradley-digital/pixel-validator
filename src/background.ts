@@ -1,14 +1,22 @@
-import type { Runtime } from "webextension-polyfill";
 import chrome from "webextension-polyfill";
-import Messages from "./messages";
-import { registerListener, removeListener } from "./lib/web-requests";
+import Messages from "./global";
+import { queryObjects } from "./lib/query";
+import { getConfigsAsQuery } from "./services/config";
+import { startMessage, stopMessage } from "./services/message";
+import { setWebRequest, startWebRequest, stopWebRequest } from "./services/web-requests";
 
-async function handleMessage(message: any, sender: Runtime.MessageSender) {
-  if (message === Messages.RegisterWebRequests) {
-    registerListener();
-  }
-  if (message === Messages.RemoveWebRequests) {
-    removeListener();
-  }
+async function listener(details: any) {
+  const query = await getConfigsAsQuery();
+  const result = queryObjects([details], query);
+  console.log(result);
+  if (result[0]) await setWebRequest(details);
 }
-chrome.runtime.onMessage.addListener(handleMessage);
+
+startMessage((message) => {
+  if (message.event === Messages.StartWebRequests.event) {
+    startWebRequest(listener);
+  }
+  if (message.event === Messages.StopWebRequests.event) {
+    stopWebRequest(listener);
+  }
+});

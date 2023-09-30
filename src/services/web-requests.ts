@@ -3,6 +3,24 @@ import { createStore } from "./storage";
 import { getActiveTab } from "./tabs";
 import { queryObjects } from "../lib/query";
 
+type WebRequest = {
+  documentId: string;
+  documentLifeCycle: string;
+  frameId: number;
+  frameType: string;
+  fromCache: false;
+  initiator: string;
+  ip: string;
+  method: string;
+  parentFrameId: number;
+  requestId: string;
+  statusCode: number;
+  tabId: number;
+  timeStamp: number;
+  type: string;
+  url: string;
+};
+
 const {
   getItems,
   queryItems,
@@ -14,13 +32,6 @@ const {
 
 export async function getWebRequests() {
   return getItems();
-}
-
-export async function getTabsWebRequests() {
-  const activeTab = await getActiveTab();
-  return queryWebRequests({
-    tabId: activeTab?.id,
-  });
 }
 
 export async function queryWebRequests(query: any) {

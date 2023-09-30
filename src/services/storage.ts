@@ -1,3 +1,13 @@
+/*
+ * createStore uses this structure under the hood
+ * {
+ *   [key]: ids[],
+ *   [id]: value,
+ * }
+ *
+ * TODO: Add ability to generate indexes
+ */
+
 import chrome from "webextension-polyfill";
 import { v4 as uuid } from "uuid";
 import { Query, queryObjects } from "../lib/query";
@@ -44,16 +54,6 @@ export function createIdStore(key: string) {
     removeId,
   };
 }
-
-/*
- * createStore uses this structure
- * {
- *   [key]: ids[],
- *   [id]: value,
- * }
- *
- * TODO: Add ability to generate indexes
- */
 
 export function createStore(key: string) {
   const {

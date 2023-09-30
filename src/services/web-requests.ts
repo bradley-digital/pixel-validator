@@ -1,9 +1,7 @@
 import chrome from "webextension-polyfill";
-import { createStore } from "./storage";
-import { getActiveTab } from "./tabs";
-import { queryObjects } from "../lib/query";
+import { createStore } from "../lib/store";
 
-type WebRequest = {
+export type WebRequest = {
   documentId: string;
   documentLifeCycle: string;
   frameId: number;
@@ -21,41 +19,10 @@ type WebRequest = {
   url: string;
 };
 
-const {
-  getItems,
-  queryItems,
-  removeItem,
-  removeItems,
-  setItem,
-  updateItem,
-} = createStore("webRequests");
-
-export async function getWebRequests() {
-  return getItems();
-}
-
-export async function queryWebRequests(query: any) {
-  return queryItems(query);
-}
-
-export async function removeWebRequest(id: string) {
-  return removeItem(id);
-}
-
-export async function removeWebRequests() {
-  return removeItems();
-}
-
-export async function setWebRequest(value: any) {
-  return setItem(value);
-}
-
-export async function updateWebRequest(id: string, value: any) {
-  return updateItem(id, value);
-}
+export const webRequests = createStore<WebRequest>("webRequest");
 
 async function defaultListener(details: any) {
-  await setWebRequest(details);
+  await webRequests.set(details);
 }
 
 export function startWebRequest(listener: (details: any) => void = defaultListener) {

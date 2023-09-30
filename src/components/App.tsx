@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Messages from "../global";
 import { getTabsWebRequests, removeWebRequests } from "../services/web-requests";
 import { sendMessageToBackground } from "../services/message";
@@ -25,6 +25,14 @@ type Request = {
 
 export default function App() {
   const [requests, setRequests] = useState<any[]>([]);
+
+  useEffect(() => {
+    async function init() {
+      const storedRequests = await getTabsWebRequests();
+      setRequests(storedRequests);
+    }
+    init();
+  }, []);
 
   async function handleClear() {
     setRequests([]);

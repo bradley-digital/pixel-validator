@@ -23,16 +23,14 @@ export type Service<T> = {
 };
 
 type ServiceInput<T> = {
-  listener?: Listener<T>;
   start: AttachService<T>;
   stop: AttachService<T>;
   events?: Events<T>;
 };
 
-function fallbackListener<T>(...args: T[]) {}
+function defaultListener<T>(...args: T[]) {}
 
 export function createService<T>({
-  listener: defaultListener = fallbackListener<T>,
   events,
   start: startService,
   stop: stopService,
@@ -59,7 +57,7 @@ export function createService<T>({
 
   function start(listener?: Listener<T>) {
     if (!listener) listener = defaultListener;
-    startService(interceptor(listener));
+    startService(interceptor(listener) as any);
   }
 
   function stop(listener?: Listener<T>) {

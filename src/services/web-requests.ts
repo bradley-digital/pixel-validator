@@ -24,14 +24,9 @@ export type WebRequest = {
 export const webRequestStore = createStore<WebRequest>("webRequest");
 
 export const webRequestService = createService<WebRequest>({
-  listener,
   start,
   stop,
 });
-
-async function listener<WebRequest>(details: UpdateInput<WebRequest>) {
-  await webRequestStore.set(details);
-}
 
 function start(listener: Listener<WebRequest>) {
   chrome.webRequest.onCompleted.addListener(listener as any, { urls: ["<all_urls>"] });

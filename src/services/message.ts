@@ -1,6 +1,6 @@
 import chrome from "webextension-polyfill";
 import { Listener } from "../lib/events";
-import { Events, createService } from "../lib/service";
+import { createService } from "../lib/service";
 import {
   getActiveTab,
   sendMessageToTab,
@@ -11,15 +11,13 @@ export enum Message {
   StopWebRequests = "stopWebRequests"
 }
 
-const events: Events<Message>[] = [
-  ["send", sendMessage],
-  ["sendToContent", sendMessageToContent],
-];
-
 export const messageService = createService<Message>({
   start,
   stop,
-  events,
+  events: {
+    send: sendMessage,
+    sendToContent: sendMessageToContent,
+  },
 });
 
 function start(listener: Listener<Message>) {
@@ -33,22 +31,16 @@ function stop(listener: Listener<Message>) {
 async function sendMessage(message: Message) {
   try {
     await chrome.runtime.sendMessage(message);
-    return message;
-  } catch {
-    return "failed";
+  } catch (err) {
+    console.error(err);
   }
 }
 
 async function sendMessageToContent(message: Message) {
-  const tab = await getActiveTab();
   try {
-    if (tab?.id) {
-      await sendMessageToTab(tab.id, message);
-      return message;
-    } else {
-      return "failed";
-    }
-  } catch {
-    return "errored";
+    const tab = await getActiveTab();
+    await sendMessageToTab(tab.id || 0, message);
+  } catch (err) {
+    console.error(err);
   }
 }

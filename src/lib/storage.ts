@@ -28,7 +28,7 @@ export function createStorage<T>(
     get: defaultGet<T>,
     remove: defaultRemove<T>,
     set: defaultSet<T>,
-  }: CreateStorageInput<T>, input);
+  } as CreateStorageInput<T>, input);
 
   const {
     clear,

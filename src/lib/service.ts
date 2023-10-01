@@ -6,27 +6,30 @@ export enum Event {
   Stop = "stop"
 }
 
-export type Events<T> = [string, (payload: T) => void];
+export type Events<T> = {
+  [event: string]: (payload: T) => void;
+};
 
-export type ServiceListener<T> = (listener: Listener<T>) => void;
+export type AttachService<T> = (listener: Listener<T>) => void;
+export type RunService<T> = (listener?: Listener<T>) => void;
+export type Plugin<T> = (...args: any[]) => any;
+export type Use<T> = (...plugins: Plugin<T>[]) => void;
 
 export type Service<T> = {
   emitter: Emitter<T>;
-  listen: ServiceListener<T>;
-  start: ServiceListener<T>;
-  stop: ServiceListener<T>;
+  start: RunService<T>;
+  stop: RunService<T>;
+  use: Use<T>;
 };
 
 type ServiceInput<T> = {
   listener?: Listener<T>;
-  start: ServiceListener<T>;
-  stop: ServiceListener<T>;
-  events?: Events<T>[];
+  start: AttachService<T>;
+  stop: AttachService<T>;
+  events?: Events<T>;
 };
 
-function fallbackListener<T>(...args: T[]) {
-  console.log("No listener registered: ", args);
-}
+function fallbackListener<T>(...args: T[]) {}
 
 export function createService<T>({
   listener: defaultListener = fallbackListener<T>,
@@ -35,36 +38,43 @@ export function createService<T>({
   stop: stopService,
 }: ServiceInput<T>): Service<T> {
   const emitter = createEmitter<T>();
+  const middleware: Plugin<T>[] = [];
 
-  function listen(listener: Listener<T> = defaultListener) {
-    emitter.on(Event.Listen, listener);
-    startService(listener);
-    emitter.emit(Event.Listen);
+  events = events || {} as Events<T>;
+
+  for (const event in events) {
+    emitter.on(event, events[event]);
   }
 
-  function start(listener: Listener<T> = defaultListener) {
-    emitter.on(Event.Start, listener);
-    startService(listener);
-    emitter.emit(Event.Start);
+  function interceptor(listener: Listener<T>): Listener<T> {
+    return async function (...args: T[]) {
+      for await (const plugin of middleware) {
+        let result = await plugin(...args);
+        if (!Array.isArray(result)) result = [result];
+        args = result;
+      }
+      listener(...args);
+    }
   }
 
-  function stop(listener: Listener<T> = defaultListener) {
-    emitter.off(Event.Stop, listener);
-    stopService(listener);
-    emitter.emit(Event.Stop);
+  function start(listener?: Listener<T>) {
+    if (!listener) listener = defaultListener;
+    startService(interceptor(listener));
   }
 
-  events = events || [] as Events<T>[];
+  function stop(listener?: Listener<T>) {
+    if (!listener) listener = defaultListener;
+    stopService(interceptor(listener));
+  }
 
-  for (const event of events) {
-    const [eventName, listener] = event;
-    emitter.on(eventName, listener);
+  function use(...plugin: Plugin<T>[]) {
+    middleware.push(...plugin);
   }
 
   return {
     emitter,
-    listen,
     start,
     stop,
+    use,
   };
 }

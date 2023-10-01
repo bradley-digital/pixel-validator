@@ -23,18 +23,12 @@ type CreateStorageInput<T> = {
 export function createStorage<T>(
   input?: CreateStorageInput<T>,
 ): Storage<T> {
-  const defaultStorage: CreateStorageInput<T> = {
+  input = Object.assign({
     clear: defaultClear<T>,
     get: defaultGet<T>,
     remove: defaultRemove<T>,
     set: defaultSet<T>,
-  };
-
-  if (typeof input === "undefined") {
-    input = defaultStorage;
-  } else {
-    Object.assign(input, defaultStorage);
-  }
+  }: CreateStorageInput<T>, input);
 
   const {
     clear,

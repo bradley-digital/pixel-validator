@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
 import { useStore } from "../hooks/use-store";
-import { ConfigRule, configRules } from "../services/config";
+import { Config, configStore as config } from "../services/config";
 import "./Config.scss";
 
 export default function Config() {
-  const configStore = useStore<ConfigRule>(configRules);
+  const configStore = useStore<Config>(config);
 
   async function handleSubmit(e: any) {
     e?.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    const newRule: Partial<ConfigRule> = {};
+    const newRule: Partial<Config> = {};
     if (data.id) newRule.id = data.id as string;
     if (data.key) newRule.key = data.key as string;
     if (data.value) newRule.value = data.value as string;

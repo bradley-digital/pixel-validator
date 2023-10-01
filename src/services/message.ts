@@ -1,54 +1,54 @@
-import type { Runtime } from "webextension-polyfill";
-import Messages from "../global";
+import chrome from "webextension-polyfill";
+import { Listener } from "../lib/events";
+import { Events, createService } from "../lib/service";
 import {
   getActiveTab,
   sendMessageToTab,
 } from "./tabs";
 
-export async function sendMessageToBackground(message: any) {
+export enum Message {
+  StartWebRequests = "startWebRequests",
+  StopWebRequests = "stopWebRequests"
+}
+
+const events: Events<Message>[] = [
+  ["send", sendMessage],
+  ["sendToContent", sendMessageToContent],
+];
+
+export const messageService = createService<Message>({
+  start,
+  stop,
+  events,
+});
+
+function start(listener: Listener<Message>) {
+  chrome.runtime.onMessage.addListener(listener as any);
+}
+
+function stop(listener: Listener<Message>) {
+  chrome.runtime.onMessage.removeListener(listener as any);
+}
+
+async function sendMessage(message: Message) {
   try {
-    const response = chrome.runtime.sendMessage(message);
-    return response;
+    await chrome.runtime.sendMessage(message);
+    return message;
   } catch {
-    return Messages.SendMessageErrored;
+    return "failed";
   }
 }
 
-export async function sendMessageToContent(message: any) {
+async function sendMessageToContent(message: Message) {
   const tab = await getActiveTab();
   try {
     if (tab?.id) {
-      const response = await sendMessageToTab(tab.id, message);
-      return response;
+      await sendMessageToTab(tab.id, message);
+      return message;
     } else {
-      return Messages.SendMessageFailed;
+      return "failed";
     }
   } catch {
-    return Messages.SendMessageErrored;
+    return "errored";
   }
-}
-
-export async function sendMessageToPopup(message: any) {
-  try {
-    const response = chrome.runtime.sendMessage(message);
-    return response;
-  } catch {
-    return Messages.SendMessageErrored;
-  }
-}
-
-export function startMessage(listener: (
-  message: any,
-  sender: chrome.runtime.MessageSender,
-  sendResponse?: (response?: any) => void
-) => void) {
-  chrome.runtime.onMessage.addListener(listener);
-}
-
-export function stopMessage(listener: (
-  message: any,
-  sender: chrome.runtime.MessageSender,
-  sendResponse?: (response?: any) => void
-) => void) {
-  chrome.runtime.onMessage.removeListener(listener);
 }

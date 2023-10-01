@@ -4,7 +4,6 @@ import { Query } from "../lib/query";
 
 type UseStore<T> = Store<T> & {
   state: T[];
-  setState: React.Dispatch<React.SetStateAction<T[]>>;
 };
 
 export function useStore<T>(store: Store<T>): UseStore<T> {
@@ -71,7 +70,6 @@ export function useStore<T>(store: Store<T>): UseStore<T> {
     removeAll,
     set,
     state,
-    setState,
     update,
   };
 }

@@ -1,5 +1,7 @@
 import chrome from "webextension-polyfill";
-import { createStore } from "../lib/store";
+import { UpdateInput, createStore } from "../lib/store";
+import { Listener } from "../lib/events";
+import { createService } from "../lib/service";
 
 export type WebRequest = {
   documentId: string;
@@ -19,20 +21,26 @@ export type WebRequest = {
   url: string;
 };
 
-export const webRequests = createStore<WebRequest>("webRequest");
+export const webRequestStore = createStore<WebRequest>("webRequest");
 
-async function defaultListener(details: any) {
-  await webRequests.set(details);
+export const webRequestService = createService<WebRequest>({
+  listener,
+  start,
+  stop,
+});
+
+async function listener<WebRequest>(details: UpdateInput<WebRequest>) {
+  await webRequestStore.set(details);
 }
 
-export function startWebRequest(listener: (details: any) => void = defaultListener) {
-  chrome.webRequest.onCompleted.addListener(listener, { urls: ["<all_urls>"] });
-  chrome.webRequest.onBeforeRedirect.addListener(listener, { urls: ["<all_urls>"] });
-  chrome.webRequest.onErrorOccurred.addListener(listener, { urls: ["<all_urls>"] });
+function start(listener: Listener<WebRequest>) {
+  chrome.webRequest.onCompleted.addListener(listener as any, { urls: ["<all_urls>"] });
+  chrome.webRequest.onBeforeRedirect.addListener(listener as any, { urls: ["<all_urls>"] });
+  chrome.webRequest.onErrorOccurred.addListener(listener as any, { urls: ["<all_urls>"] });
 }
 
-export function stopWebRequest(listener: (details: any) => void = defaultListener) {
-  chrome.webRequest.onCompleted.removeListener(listener);
-  chrome.webRequest.onBeforeRedirect.removeListener(listener);
-  chrome.webRequest.onErrorOccurred.removeListener(listener);
+function stop(listener: Listener<WebRequest>) {
+  chrome.webRequest.onCompleted.removeListener(listener as any);
+  chrome.webRequest.onBeforeRedirect.removeListener(listener as any);
+  chrome.webRequest.onErrorOccurred.removeListener(listener as any);
 }

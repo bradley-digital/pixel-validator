@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
-import Messages from "../global";
 import { useStore } from "../hooks/use-store";
-import { WebRequest, webRequests } from "../services/web-requests";
-import { sendMessageToBackground } from "../services/message";
+import { useEmitter } from "../hooks/use-emitter";
+import { WebRequest, webRequestStore  } from "../services/web-requests";
+import { Message, messageService } from "../services/message";
 import Config from "./Config";
 import "./App.scss";
 
 export default function App() {
-  const webRequestsStore = useStore<WebRequest>(webRequests);
+  const webRequests = useStore<WebRequest>(webRequestStore);
+  const messages = useEmitter<Message>(messageService.emitter);
 
   async function handleStart() {
-    await sendMessageToBackground(Messages.StartWebRequests);
+    await messages.send(Message.StartWebRequests);
   }
 
   async function handleStop() {
-    await sendMessageToBackground(Messages.StopWebRequests);
+    await messages.send(Message.StopWebRequests);
   }
 
   return (
@@ -23,10 +24,10 @@ export default function App() {
       <Config />
       <button onClick={handleStart}>Start</button>
       <button onClick={handleStop}>Stop</button>
-      <button onClick={webRequestsStore.getAll}>Refresh</button>
-      <button onClick={webRequestsStore.removeAll}>Clear</button>
-      <p>Found: {webRequestsStore.state.length} requests</p>
-      {webRequestsStore.state?.map((request: any) => (
+      <button onClick={webRequests.getAll}>Refresh</button>
+      <button onClick={webRequests.removeAll}>Clear</button>
+      <p>Found: {webRequests.state.length} requests</p>
+      {webRequests.state?.map((request: any) => (
         <p>{request?.method} {request?.url}</p>
       ))}
     </div>

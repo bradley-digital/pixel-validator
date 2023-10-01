@@ -1,7 +1,7 @@
 import { Query } from "../lib/query";
 import { createStore } from "../lib/store";
 
-export type ConfigRule = {
+export type Config = {
   id: string;
   key: string;
   value: string;
@@ -10,11 +10,11 @@ export type ConfigRule = {
   regex: boolean;
 };
 
-export const configRules = createStore<ConfigRule>("configRule");
+export const configStore = createStore<Config>("config");
 
 export async function getConfigsAsQuery() {
   const query: Query = {};
-  const configs = await configRules.getAll();
+  const configs = await configStore.getAll();
   for (const config of configs) {
     query[config.key] = {
       value: config.value,

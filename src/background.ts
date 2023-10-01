@@ -1,21 +1,24 @@
 import chrome from "webextension-polyfill";
-import Messages from "./global";
 import { queryObjects } from "./lib/query";
 import { getConfigsAsQuery } from "./services/config";
-import { startMessage, stopMessage } from "./services/message";
-import { webRequests, startWebRequest, stopWebRequest } from "./services/web-requests";
+import { Message, messageService } from "./services/message";
+import { WebRequest, webRequestStore, webRequestService } from "./services/web-requests";
 
-async function listener(details: any) {
+async function webListener(details: WebRequest) {
   const query = await getConfigsAsQuery();
   const result = queryObjects([details], query);
-  if (result[0]) await webRequests.set(details);
+  if (result[0]) await webRequestStore.set(details);
 }
 
-startMessage((message) => {
-  if (message.event === Messages.StartWebRequests.event) {
-    startWebRequest(listener);
-  }
-  if (message.event === Messages.StopWebRequests.event) {
-    stopWebRequest(listener);
+messageService.listen((message: Message) => {
+  switch (message[0]) {
+    case Message.StartWebRequests:
+      webRequestService.start(webListener);
+      break;
+    case Message.StopWebRequests:
+      webRequestService.stop(webListener);
+      break;
+    default:
+      console.log("Uncaught message:", message);
   }
 });

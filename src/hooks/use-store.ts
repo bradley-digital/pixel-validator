@@ -55,8 +55,8 @@ export function useStore<T>(store: Store<T>): UseStore<T> {
     if (typeof input === "string") return input as T;
     const id = (input as Id<T>).id || "";
     const existing = state.find((s) => (s as Id<T>)?.id === id);
-    const item = { ...existing, ...input } as T;
     const newState = state.filter((s) => (s as Id<T>)?.id !== id);
+    const item = { ...existing, ...input } as T;
     newState.push(item);
     setState(newState);
     return store.update(item);

@@ -19,13 +19,6 @@ export async function defaultRemove<T>(key: string) {
 
 export async function defaultSet<T>(key: string, value: UpdateInput<T>) {
   await chrome.storage.local.set({ [key]: value });
-  return value as T;
-}
-
-export function startStorage(listener: (change: any) => void) {
-  chrome.storage.local.onChanged.addListener(listener);
-}
-
-export function stopStorage(listener: (change: any) => void) {
-  chrome.storage.local.onChanged.removeListener(listener);
+  const item = await defaultGet<T>(key);
+  return item;
 }

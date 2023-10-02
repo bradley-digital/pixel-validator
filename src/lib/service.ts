@@ -24,6 +24,7 @@ export function createService<T>({
   start: startService,
   stop: stopService,
 }: ServiceInput<T>): Service<T> {
+
   const middleware: Plugin<T>[] = [];
 
   function interceptor(listener: Listener<T>): Listener<T> {

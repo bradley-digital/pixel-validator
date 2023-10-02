@@ -44,8 +44,8 @@ export function useStore<T>(store: Store<T>): UseStore<T> {
   }
 
   async function set(input: UpdateInput<T>) {
-    const newState = [...state];
     const item = await store.set(input);
+    const newState = [...state];
     newState.push(item);
     setState(newState);
     return item;

@@ -33,6 +33,7 @@ export type UpdateInput<T> = string |  Partial<T>;
 export type Id<T> = Partial<T> & { id: string };
 
 export function createIdStore(key: string): IdStore {
+
   const storage = createStorage<string[]>();
 
   async function getAll() {

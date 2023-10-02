@@ -6,6 +6,7 @@ import "./Config.scss";
 export default function Config() {
   const configStore = useStore<Config>(config);
 
+  // make form component to gracefully handle this
   async function handleSubmit(e: any) {
     e?.preventDefault();
     const formData = new FormData(e.target);

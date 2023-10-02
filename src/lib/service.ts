@@ -1,4 +1,4 @@
-import { Emitter, Events, Listener, createEmitter } from "./events";
+import { Listener } from "./events";
 
 export type AttachService<T> = (listener: Listener<T>) => void;
 export type RunService<T> = (listener?: Listener<T>) => void;

@@ -17,7 +17,6 @@ export type Emitter<T> = {
 };
 
 export function createEmitter<T>(events: Events<T>): Emitter<T> {
-
   const emitter = new EventEmitter();
 
   events = events || {} as Events<T>;

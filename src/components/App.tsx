@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { useStore } from "../hooks/use-store";
 import { useEmitter } from "../hooks/use-emitter";
 import { WebRequest, webRequestStore  } from "../services/web-requests";
-import { Message, messageService } from "../services/message";
+import { Message, messageEmitter } from "../services/message";
 import Config from "./Config";
 import "./App.scss";
 
 export default function App() {
   const webRequests = useStore<WebRequest>(webRequestStore);
-  const messages = useEmitter<Message>(messageService.emitter);
+  const messages = useEmitter<Message>(messageEmitter);
 
   async function handleStart() {
     await messages.send(Message.StartWebRequests);

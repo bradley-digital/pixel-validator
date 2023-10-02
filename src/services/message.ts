@@ -1,5 +1,6 @@
 import chrome from "webextension-polyfill";
 import { Listener } from "../lib/events";
+import { createEmitter } from "../lib/events";
 import { createService } from "../lib/service";
 import {
   getActiveTab,
@@ -14,10 +15,11 @@ export enum Message {
 export const messageService = createService<Message>({
   start,
   stop,
-  events: {
-    send: sendMessage,
-    sendToContent: sendMessageToContent,
-  },
+});
+
+export const messageEmitter = createEmitter<Message>({
+  send: sendMessage,
+  sendToContent: sendMessageToContent,
 });
 
 function start(listener: Listener<Message>) {

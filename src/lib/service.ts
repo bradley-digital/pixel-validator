@@ -1,14 +1,4 @@
-import { Listener, Emitter, createEmitter } from "./events";
-
-export enum Event {
-  Listen = "listen",
-  Start = "start",
-  Stop = "stop"
-}
-
-export type Events<T> = {
-  [event: string]: (payload: T) => void;
-};
+import { Emitter, Events, Listener, createEmitter } from "./events";
 
 export type AttachService<T> = (listener: Listener<T>) => void;
 export type RunService<T> = (listener?: Listener<T>) => void;
@@ -16,7 +6,6 @@ export type Plugin<T> = (...args: any[]) => any;
 export type Use<T> = (...plugins: Plugin<T>[]) => void;
 
 export type Service<T> = {
-  emitter: Emitter<T>;
   start: RunService<T>;
   stop: RunService<T>;
   use: Use<T>;
@@ -35,14 +24,7 @@ export function createService<T>({
   start: startService,
   stop: stopService,
 }: ServiceInput<T>): Service<T> {
-  const emitter = createEmitter<T>();
   const middleware: Plugin<T>[] = [];
-
-  events = events || {} as Events<T>;
-
-  for (const event in events) {
-    emitter.on(event, events[event]);
-  }
 
   function interceptor(listener: Listener<T>): Listener<T> {
     return async function (...args: T[]) {
@@ -70,7 +52,6 @@ export function createService<T>({
   }
 
   return {
-    emitter,
     start,
     stop,
     use,

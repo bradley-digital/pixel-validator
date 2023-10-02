@@ -24,8 +24,8 @@ export function queryObjects(obj: any[], query: Query) {
     return Object.keys(query).every((key) => {
       let result = true;
       try {
-        if (typeof item !== "object") return result;
-        if (typeof item[key] === "undefined") return result;
+        if (typeof item !== "object") return false;
+        if (typeof item[key] === "undefined") return false;
 
         const q = query[key];
         const v = `${item[key]}`;

@@ -37,7 +37,8 @@ export function queryObjects(obj: any[], query: Query) {
           if (q?.options) {
             if (q?.options?.contains) {
               result = v.includes(qv);
-            } else if (q?.options?.regex) {
+            }
+            if (q?.options?.regex) {
               result = new RegExp(qv, "ig").test(v);
             }
             if (q?.options?.exclude) {

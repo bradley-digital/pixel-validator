@@ -3,6 +3,6 @@ export function getDomain(url?: string) {
   url = url.replace(/.*?\/\//i, "");
   const parts = url.split(".");
   const topLevelDomain = parts.slice(parts.length - 2).join(".");
-  const domain = topLevelDomain.replace(/(\/|#|?).*?$/i, "");
+  const domain = topLevelDomain.replace(/(\/|#|\?).*?$/i, "");
   return domain;
 }

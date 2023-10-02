@@ -23,6 +23,7 @@ type CreateStorageInput<T> = {
 export function createStorage<T>(
   input?: CreateStorageInput<T>,
 ): Storage<T> {
+
   input = Object.assign({
     clear: defaultClear<T>,
     get: defaultGet<T>,

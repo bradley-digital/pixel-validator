@@ -39,7 +39,7 @@ export function createService<T>({
 
   function start(listener?: Listener<T>) {
     if (!listener) listener = defaultListener;
-    startService(interceptor(listener) as any);
+    startService(interceptor(listener));
   }
 
   function stop(listener?: Listener<T>) {

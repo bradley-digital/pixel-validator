@@ -39,6 +39,8 @@ export function createService<T>({
   }
 
   // probably need to create reference to interceptor to stop it
+  // <Function & { id: string }>[]
+  // start =>
   function start(listener?: Listener<T>) {
     if (!listener) listener = defaultListener;
     startService(interceptor(listener));

@@ -27,7 +27,7 @@ export function createService<T>({
 
   const middleware: Plugin<T>[] = [];
 
-  function interceptor(listener: Listener<T>): Listener<T> {
+  function intercept(listener: Listener<T>): Listener<T> {
     return async function (...args: T[]) {
       for await (const plugin of middleware) {
         let result = await plugin(...args);
@@ -44,12 +44,12 @@ export function createService<T>({
   // stop: (id) => boolean;
   function start(listener?: Listener<T>) {
     if (!listener) listener = defaultListener;
-    startService(interceptor(listener));
+    startService(intercept(listener));
   }
 
   function stop(listener?: Listener<T>) {
     if (!listener) listener = defaultListener;
-    stopService(interceptor(listener));
+    stopService(intercept(listener));
   }
 
   function use(...plugin: Plugin<T>[]) {
